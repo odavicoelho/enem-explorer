@@ -1,0 +1,11 @@
+version: 2
+
+seeds:
+  - name: skills
+    description: The 120 skills (habilidades) of INEP's ENEM reference matrix, extracted from matriz_referencia_enem.pdf (shipped in the 2024 microdata zip).
+    config:
+      column_types: {area: varchar, skill: integer, description: varchar}
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [area, skill]

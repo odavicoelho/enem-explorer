@@ -150,3 +150,31 @@ models:
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
+
+  - name: mart_skill_gaps
+    description: Percent of correct answers per skill (habilidade), by state and school type and for Brazil ('BR'). difficulty_rank 1 = the most missed skill in that group and area.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [state, school_type, area, skill]
+    columns:
+      - name: skill_description
+        description: The skill's text in INEP's reference matrix (Portuguese).
+        data_tests: [not_null]
+      - name: pct_correct
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 100}}
+      - name: students
+        data_tests: [not_null, min_group_size]
+
+  - name: mart_school_skills
+    description: Percent correct per skill for each published school, with the same-state, same-type benchmark and the gap between them.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [school_id, area, skill]
+    columns:
+      - name: pct_correct
+        data_tests:
+          - between: {arguments: {min_value: 0, max_value: 100}}
