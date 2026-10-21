@@ -1,0 +1,42 @@
+-- One row per exam taker. Codes are decoded, columns renamed to plain English.
+select
+    NU_SEQUENCIAL                                   as result_id,
+    NU_ANO                                          as year,
+    CO_ESCOLA                                       as school_id,
+    CO_MUNICIPIO_ESC                                as school_city_id,
+    NO_MUNICIPIO_ESC                                as school_city,
+    SG_UF_ESC                                       as school_state,
+    {{ school_type_label('TP_DEPENDENCIA_ADM_ESC') }} as school_type,
+    case TP_LOCALIZACAO_ESC when 1 then 'Urbana' when 2 then 'Rural' end as school_location,
+    CO_MUNICIPIO_PROVA                              as exam_city_id,
+    NO_MUNICIPIO_PROVA                              as exam_city,
+    SG_UF_PROVA                                     as exam_state,
+    -- 0 absent, 1 present, 2 eliminated
+    TP_PRESENCA_CN = 1 and TP_PRESENCA_CH = 1
+        and TP_PRESENCA_LC = 1 and TP_PRESENCA_MT = 1 as present_all_exams,
+    CO_PROVA_CN                                     as booklet_natural_sciences,
+    CO_PROVA_CH                                     as booklet_humanities,
+    CO_PROVA_LC                                     as booklet_languages,
+    CO_PROVA_MT                                     as booklet_math,
+    NU_NOTA_CN                                      as score_natural_sciences,
+    NU_NOTA_CH                                      as score_humanities,
+    NU_NOTA_LC                                      as score_languages,
+    NU_NOTA_MT                                      as score_math,
+    NU_NOTA_REDACAO                                 as score_essay,
+    NU_NOTA_COMP1                                   as essay_competency_1,
+    NU_NOTA_COMP2                                   as essay_competency_2,
+    NU_NOTA_COMP3                                   as essay_competency_3,
+    NU_NOTA_COMP4                                   as essay_competency_4,
+    NU_NOTA_COMP5                                   as essay_competency_5,
+    TP_STATUS_REDACAO                               as essay_status,
+    -- 0 English, 1 Spanish
+    case TP_LINGUA when 0 then 'Inglês' when 1 then 'Espanhol' end as foreign_language,
+    TX_RESPOSTAS_CN                                 as answers_natural_sciences,
+    TX_RESPOSTAS_CH                                 as answers_humanities,
+    TX_RESPOSTAS_LC                                 as answers_languages,
+    TX_RESPOSTAS_MT                                 as answers_math,
+    TX_GABARITO_CN                                  as key_natural_sciences,
+    TX_GABARITO_CH                                  as key_humanities,
+    TX_GABARITO_LC                                  as key_languages,
+    TX_GABARITO_MT                                  as key_math
+from {{ source('inep', 'results') }}

@@ -1,0 +1,152 @@
+version: 2
+
+models:
+  - name: mart_school
+    description: One row per school with at least var('min_group_size') students. Scores are averages of students finishing high school who took every exam.
+    columns:
+      - name: school_id
+        description: INEP school code (CO_ESCOLA).
+        data_tests: [unique, not_null]
+      - name: state
+        data_tests: [not_null]
+      - name: school_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: ['Federal', 'Estadual', 'Municipal', 'Privada']}
+      - name: students
+        description: Students counted. Never below the privacy minimum.
+        data_tests: [not_null, min_group_size]
+      - name: avg_natural_sciences
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_humanities
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_languages
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_math
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_essay
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_overall
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: rank_in_state
+        data_tests: [not_null]
+      - name: national_percentile
+        data_tests:
+          - between: {arguments: {min_value: 0, max_value: 100}}
+
+  - name: mart_city
+    description: One row per city (where the schools are), with at least var('min_group_size') students.
+    columns:
+      - name: city_id
+        description: IBGE city code.
+        data_tests: [unique, not_null]
+      - name: students
+        data_tests: [not_null, min_group_size]
+      - name: avg_natural_sciences
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_humanities
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_languages
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_math
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_essay
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_overall
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+
+  - name: mart_state
+    description: One row per state.
+    columns:
+      - name: state
+        data_tests: [unique, not_null]
+      - name: students
+        data_tests: [not_null, min_group_size]
+      - name: avg_natural_sciences
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_humanities
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_languages
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_math
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_essay
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_overall
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+
+  - name: mart_school_type
+    description: Federal / state / municipal / private comparison per state, plus the whole country as state 'BR'.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: [state, school_type]
+    columns:
+      - name: school_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments: {values: ['Federal', 'Estadual', 'Municipal', 'Privada']}
+      - name: students
+        data_tests: [not_null, min_group_size]
+      - name: avg_natural_sciences
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_humanities
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_languages
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_math
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_essay
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: avg_overall
+        data_tests:
+          - not_null
+          - between: {arguments: {min_value: 0, max_value: 1000}}

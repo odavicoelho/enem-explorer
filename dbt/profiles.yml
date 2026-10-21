@@ -1,0 +1,7 @@
+enem_explorer:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: "{{ env_var('ENEM_DUCKDB_PATH', '../data/enem.duckdb') }}"
+      threads: 4

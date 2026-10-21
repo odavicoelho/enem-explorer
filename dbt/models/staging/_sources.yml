@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: inep
+    description: ENEM 2024 microdata from INEP, staged as Parquet by `enem stage`.
+    tables:
+      - name: results
+        description: One row per exam taker with scores, answers and school. Not linkable to participants.
+        meta:
+          external_location: "{{ var('staged_dir') }}/results.parquet"
+      - name: items
+        description: One row per question per booklet, with its skill (habilidade) and difficulty.
+        meta:
+          external_location: "{{ var('staged_dir') }}/items.parquet"

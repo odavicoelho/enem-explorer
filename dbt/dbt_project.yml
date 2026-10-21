@@ -1,0 +1,23 @@
+name: enem_explorer
+version: "0.1.0"
+config-version: 2
+profile: enem_explorer
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+
+vars:
+  # Where `enem stage` wrote the Parquet files (relative to this dbt/ folder).
+  staged_dir: "../data/staged/enem_2024"
+  # Privacy: no published group may have fewer students than this (LGPD).
+  min_group_size: 10
+
+models:
+  enem_explorer:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: table
+    marts:
+      +materialized: table

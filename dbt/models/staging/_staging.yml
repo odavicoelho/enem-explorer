@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_results
+    description: ENEM 2024 results with readable column names and decoded categories. One row per exam taker.
+    columns:
+      - name: result_id
+        data_tests: [unique, not_null]
+      - name: school_type
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['Federal', 'Estadual', 'Municipal', 'Privada']}
+      - name: score_math
+        data_tests:
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: score_essay
+        data_tests:
+          - between: {arguments: {min_value: 0, max_value: 1000}}
+
+  - name: stg_items
+    description: One row per question per booklet, with the skill (habilidade) it measures.
+    columns:
+      - name: booklet_id
+        data_tests: [not_null]
+      - name: area
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['CN', 'CH', 'LC', 'MT']}
+      - name: position
+        data_tests:
+          - between: {arguments: {min_value: 1, max_value: 180}}
