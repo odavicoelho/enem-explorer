@@ -1,6 +1,7 @@
 import hashlib
 import json
 import shutil
+import zipfile
 from pathlib import Path
 
 import duckdb
@@ -9,7 +10,7 @@ import pytest
 import respx
 
 from enem_explorer import ingest, stage
-from enem_explorer.datasets import ENEM_2024
+from enem_explorer.datasets import CENSO_2024, ENEM_2024
 
 FIXTURE = Path(__file__).parent / "fixtures" / "enem_sample.zip"
 URL = ENEM_2024.url
@@ -96,3 +97,53 @@ def test_stage_produces_typed_parquet(tmp_path: Path) -> None:
     # Latin-1 decoded correctly
     names = {r[0] for r in con.execute(f"SELECT DISTINCT NO_MUNICIPIO_PROVA FROM '{results}'").fetchall()}
     assert "São Paulo" in names
+
+
+CENSO_FIXTURE = Path(__file__).parent / "fixtures" / "censo_sample.zip"
+
+
+def test_stage_verifies_published_md5(tmp_path: Path) -> None:
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    shutil.copy(CENSO_FIXTURE, raw / "censo_escolar_2024.zip")
+
+    assert stage.stage(CENSO_2024, raw, tmp_path / "staged") == {"schools": 15}
+
+
+def test_stage_rejects_a_file_that_does_not_match_its_md5(tmp_path: Path) -> None:
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    with zipfile.ZipFile(CENSO_FIXTURE) as src, zipfile.ZipFile(raw / "censo_escolar_2024.zip", "w") as dst:
+        for info in src.infolist():
+            data = src.read(info)
+            if info.filename.endswith("microdados_ed_basica_2024.csv"):
+                data = data.replace(b"ESCOLA TESTE", b"ESCOLA FALSA")  # tampered after the checksum
+            dst.writestr(info, data)
+
+    with pytest.raises(stage.ChecksumError, match="md5"):
+        stage.stage(CENSO_2024, raw, tmp_path / "staged")
+
+
+def test_dictionary_uses_dbt_descriptions(tmp_path: Path) -> None:
+    from enem_explorer.export import dictionary
+
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "nodes": {
+                    "model.x.mart_state": {
+                        "resource_type": "model",
+                        "name": "mart_state",
+                        "description": "One row per state.",
+                        "columns": {"state": {"description": "State (UF)."}},
+                    }
+                }
+            }
+        )
+    )
+
+    text = dictionary({"state": 27}, manifest)
+
+    assert "## `state` · 27 rows" in text
+    assert "| `state` | State (UF). |" in text

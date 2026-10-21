@@ -12,3 +12,11 @@ sources:
         description: One row per question per booklet, with its skill (habilidade) and difficulty.
         meta:
           external_location: "{{ var('staged_dir') }}/items.parquet"
+
+  - name: censo
+    description: Censo Escolar 2024 (INEP), staged as Parquet. Used for school names, addresses and facilities.
+    tables:
+      - name: schools
+        description: One row per school registered in the 2024 school census.
+        meta:
+          external_location: "{{ var('censo_dir') }}/schools.parquet"

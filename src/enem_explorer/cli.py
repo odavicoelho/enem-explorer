@@ -4,6 +4,7 @@ from typing import Annotated
 
 import typer
 
+from enem_explorer import export as export_module
 from enem_explorer import ingest
 from enem_explorer import stage as stage_module
 from enem_explorer.datasets import DATASETS, Dataset
@@ -39,3 +40,12 @@ def stage_command(name: DatasetName = "enem_2024", data: DataDir = Path("data"))
     counts = stage_module.stage(_dataset(name), data / "raw", data / "staged")
     for member, rows in counts.items():
         typer.echo(f"  {member:<14} {rows:>12,} rows")
+
+
+@app.command("export")
+def export_command(data: DataDir = Path("data")) -> None:
+    """Export the published marts as Parquet + CSV with a data dictionary (run after `dbt build`)."""
+    manifest = Path(__file__).resolve().parents[2] / "dbt" / "target" / "manifest.json"
+    counts = export_module.export(data / "enem.duckdb", data / "export", manifest)
+    for table, rows in counts.items():
+        typer.echo(f"  {table:<14} {rows:>12,} rows")

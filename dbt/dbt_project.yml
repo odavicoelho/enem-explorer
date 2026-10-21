@@ -10,6 +10,7 @@ test-paths: ["tests"]
 vars:
   # Where `enem stage` wrote the Parquet files (relative to this dbt/ folder).
   staged_dir: "../data/staged/enem_2024"
+  censo_dir: "../data/staged/censo_escolar_2024"
   # Privacy: no published group may have fewer students than this (LGPD).
   min_group_size: 10
 

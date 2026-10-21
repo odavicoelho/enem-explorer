@@ -17,6 +17,14 @@ models:
         data_tests:
           - between: {arguments: {min_value: 0, max_value: 1000}}
 
+  - name: stg_schools
+    description: Schools from the 2024 Censo Escolar, with name, address and a few facilities.
+    columns:
+      - name: school_id
+        data_tests: [unique, not_null]
+      - name: school_name
+        data_tests: [not_null]
+
   - name: stg_items
     description: One row per question per booklet, with the skill (habilidade) it measures.
     columns:

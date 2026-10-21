@@ -2,179 +2,300 @@ version: 2
 
 models:
   - name: mart_school
-    description: One row per school with at least var('min_group_size') students. Scores are averages of students finishing high school who took every exam.
+    description: One row per school with at least 10 students. Includes the school's name and facilities from the Censo Escolar, and its rankings.
     columns:
       - name: school_id
-        description: INEP school code (CO_ESCOLA).
-        data_tests: [unique, not_null]
-      - name: state
-        data_tests: [not_null]
-      - name: school_type
+        description: "INEP school code (CO_ESCOLA / CO_ENTIDADE)."
+        data_tests:
+          - unique
+          - not_null
+      - name: school_name
+        description: "School name from the Censo Escolar 2024. Every published school has one."
         data_tests:
           - not_null
-          - accepted_values:
-              arguments: {values: ['Federal', 'Estadual', 'Municipal', 'Privada']}
+      - name: city_id
+        description: "{{ doc('city_id') }}"
+      - name: city
+        description: "{{ doc('city') }}"
+      - name: state
+        description: "{{ doc('state') }}"
+        data_tests:
+          - not_null
+      - name: school_type
+        description: "{{ doc('school_type') }}"
+        data_tests:
+          - not_null
+          - accepted_values: {arguments: {values: ['Federal', 'Estadual', 'Municipal', 'Privada']}}
+      - name: school_location
+        description: "Urbana (urban) or Rural."
+      - name: neighborhood
+        description: "Neighborhood (bairro), from the census."
+      - name: has_internet
+        description: "School has internet access (census)."
+      - name: has_library
+        description: "School has a library (census)."
+      - name: has_science_lab
+        description: "School has a science lab (census)."
+      - name: high_school_enrollment
+        description: "Students enrolled in high school in 2024 (census)."
       - name: students
-        description: Students counted. Never below the privacy minimum.
-        data_tests: [not_null, min_group_size]
+        description: "{{ doc('students') }}"
+        data_tests:
+          - not_null
+          - min_group_size
       - name: avg_natural_sciences
+        description: "{{ doc('avg_natural_sciences') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_humanities
+        description: "{{ doc('avg_humanities') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_languages
+        description: "{{ doc('avg_languages') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_math
+        description: "{{ doc('avg_math') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_essay
+        description: "{{ doc('avg_essay') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_overall
+        description: "{{ doc('avg_overall') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: rank_in_state
-        data_tests: [not_null]
+        description: "{{ doc('rank_in_state') }}"
+        data_tests:
+          - not_null
+      - name: schools_in_state
+        description: "Published schools in the same state."
+      - name: rank_in_state_and_type
+        description: "Position among schools of the same type in the same state (1 = best)."
+      - name: schools_in_state_and_type
+        description: "Published schools of the same type in the same state."
       - name: national_percentile
+        description: "Share of published schools in Brazil with a lower `avg_overall`, 0–100."
         data_tests:
           - between: {arguments: {min_value: 0, max_value: 100}}
 
   - name: mart_city
-    description: One row per city (where the schools are), with at least var('min_group_size') students.
+    description: One row per city with at least 10 students, by where the schools are (not where the exam was taken).
     columns:
       - name: city_id
-        description: IBGE city code.
-        data_tests: [unique, not_null]
+        description: "{{ doc('city_id') }}"
+        data_tests:
+          - unique
+          - not_null
+      - name: city
+        description: "{{ doc('city') }}"
+      - name: state
+        description: "{{ doc('state') }}"
+      - name: schools
+        description: "{{ doc('schools') }}"
       - name: students
-        data_tests: [not_null, min_group_size]
+        description: "{{ doc('students') }}"
+        data_tests:
+          - not_null
+          - min_group_size
       - name: avg_natural_sciences
+        description: "{{ doc('avg_natural_sciences') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_humanities
+        description: "{{ doc('avg_humanities') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_languages
+        description: "{{ doc('avg_languages') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_math
+        description: "{{ doc('avg_math') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_essay
+        description: "{{ doc('avg_essay') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_overall
+        description: "{{ doc('avg_overall') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
+      - name: rank_in_state
+        description: "{{ doc('rank_in_state') }}"
+      - name: cities_in_state
+        description: "Published cities in the same state."
 
   - name: mart_state
     description: One row per state.
     columns:
       - name: state
-        data_tests: [unique, not_null]
+        description: "{{ doc('state') }}"
+        data_tests:
+          - unique
+          - not_null
+      - name: schools
+        description: "{{ doc('schools') }}"
       - name: students
-        data_tests: [not_null, min_group_size]
+        description: "{{ doc('students') }}"
+        data_tests:
+          - not_null
+          - min_group_size
       - name: avg_natural_sciences
+        description: "{{ doc('avg_natural_sciences') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_humanities
+        description: "{{ doc('avg_humanities') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_languages
+        description: "{{ doc('avg_languages') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_math
+        description: "{{ doc('avg_math') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_essay
+        description: "{{ doc('avg_essay') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_overall
+        description: "{{ doc('avg_overall') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
 
   - name: mart_school_type
-    description: Federal / state / municipal / private comparison per state, plus the whole country as state 'BR'.
+    description: Federal, state, municipal and private schools compared, per state and for Brazil (`BR`).
     data_tests:
       - unique_combination:
           arguments:
             columns: [state, school_type]
     columns:
+      - name: state
+        description: "{{ doc('state') }}"
       - name: school_type
+        description: "{{ doc('school_type') }}"
         data_tests:
           - not_null
-          - accepted_values:
-              arguments: {values: ['Federal', 'Estadual', 'Municipal', 'Privada']}
+          - accepted_values: {arguments: {values: ['Federal', 'Estadual', 'Municipal', 'Privada']}}
+      - name: schools
+        description: "{{ doc('schools') }}"
       - name: students
-        data_tests: [not_null, min_group_size]
+        description: "{{ doc('students') }}"
+        data_tests:
+          - not_null
+          - min_group_size
       - name: avg_natural_sciences
+        description: "{{ doc('avg_natural_sciences') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_humanities
+        description: "{{ doc('avg_humanities') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_languages
+        description: "{{ doc('avg_languages') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_math
+        description: "{{ doc('avg_math') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_essay
+        description: "{{ doc('avg_essay') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
       - name: avg_overall
+        description: "{{ doc('avg_overall') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 1000}}
 
   - name: mart_skill_gaps
-    description: Percent of correct answers per skill (habilidade), by state and school type and for Brazil ('BR'). difficulty_rank 1 = the most missed skill in that group and area.
+    description: How often each skill was answered correctly, per state and school type and for Brazil (`BR`). Use `difficulty_rank` to find the most missed skills.
     data_tests:
       - unique_combination:
           arguments:
             columns: [state, school_type, area, skill]
     columns:
+      - name: state
+        description: "{{ doc('state') }}"
+      - name: school_type
+        description: "{{ doc('school_type') }}"
+      - name: area
+        description: "{{ doc('area') }}"
+      - name: skill
+        description: "{{ doc('skill') }}"
       - name: skill_description
-        description: The skill's text in INEP's reference matrix (Portuguese).
-        data_tests: [not_null]
+        description: "{{ doc('skill_description') }}"
+        data_tests:
+          - not_null
+      - name: answers
+        description: "{{ doc('answers') }}"
       - name: pct_correct
+        description: "{{ doc('pct_correct') }}"
         data_tests:
           - not_null
           - between: {arguments: {min_value: 0, max_value: 100}}
       - name: students
-        data_tests: [not_null, min_group_size]
+        description: "{{ doc('students') }}"
+        data_tests:
+          - not_null
+          - min_group_size
+      - name: difficulty_rank
+        description: "1 = the most missed skill in this state, school type and area."
 
   - name: mart_school_skills
-    description: Percent correct per skill for each published school, with the same-state, same-type benchmark and the gap between them.
+    description: For each published school, how often each skill was answered correctly, next to the average of schools of the same type in the same state.
     data_tests:
       - unique_combination:
           arguments:
             columns: [school_id, area, skill]
     columns:
+      - name: school_id
+        description: "INEP school code."
+      - name: area
+        description: "{{ doc('area') }}"
+      - name: skill
+        description: "{{ doc('skill') }}"
+      - name: skill_description
+        description: "{{ doc('skill_description') }}"
+      - name: answers
+        description: "{{ doc('answers') }}"
       - name: pct_correct
+        description: "{{ doc('pct_correct') }}"
         data_tests:
           - between: {arguments: {min_value: 0, max_value: 100}}
+      - name: benchmark_pct_correct
+        description: "`pct_correct` of schools of the same type in the same state."
+      - name: gap_vs_benchmark
+        description: "`pct_correct` minus the benchmark, in percentage points. Negative = below similar schools."

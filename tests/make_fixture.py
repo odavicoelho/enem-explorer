@@ -6,6 +6,7 @@ ENEM 2024 microdata, but every value is generated: no real person's row is ever 
     python tests/make_fixture.py
 """
 
+import hashlib
 import io
 import random
 import string
@@ -13,6 +14,8 @@ import zipfile
 from pathlib import Path
 
 OUT = Path(__file__).parent / "fixtures" / "enem_sample.zip"
+CENSO_OUT = Path(__file__).parent / "fixtures" / "censo_sample.zip"
+CENSO_ROOT = "microdados_censo_escolar_2024_defeso/dados"
 ROOT = "microdados_enem_2024/DADOS"
 
 RESULTS_COLUMNS = [
@@ -229,6 +232,63 @@ def _participants(rng: random.Random, rows: int) -> list[list[object]]:
     return out
 
 
+CENSO_COLUMNS = [
+    "NU_ANO_CENSO",
+    "SG_UF",
+    "NO_MUNICIPIO",
+    "CO_MUNICIPIO",
+    "NO_ENTIDADE",
+    "CO_ENTIDADE",
+    "TP_DEPENDENCIA",
+    "TP_LOCALIZACAO",
+    "DS_ENDERECO",
+    "NO_BAIRRO",
+    "CO_CEP",
+    "TP_SITUACAO_FUNCIONAMENTO",
+    "IN_BIBLIOTECA",
+    "IN_LABORATORIO_CIENCIAS",
+    "IN_INTERNET",
+    "QT_MAT_MED",
+]
+
+
+def build_censo(seed: int = 2024) -> bytes:
+    """Every fixture school, plus a few that never appear in the results (as in the real census)."""
+    rng = random.Random(seed)
+    rows: list[list[object]] = []
+    extra = [(80000000 + i, CITIES[i % len(CITIES)], 2) for i in range(3)]
+    for school, (city, city_name, _, uf), kind in SCHOOLS + extra:
+        rows.append(
+            [
+                2024,
+                uf,
+                city_name,
+                city,
+                f"ESCOLA TESTE {school}",
+                school,
+                kind,
+                1,
+                f"RUA {rng.randint(1, 999)}",
+                "CENTRO",
+                f"0{rng.randint(1000000, 9999999)}",
+                1,
+                rng.randint(0, 1),
+                rng.randint(0, 1),
+                1,
+                rng.randint(20, 900),
+            ]
+        )
+    data = _csv(CENSO_COLUMNS, rows)
+    listing = (
+        f"{hashlib.md5(data, usedforsecurity=False).hexdigest().upper()} *microdados_ed_basica_2024.csv\n"
+    )
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr(f"{CENSO_ROOT}/microdados_ed_basica_2024.csv", data)
+        archive.writestr(f"{CENSO_ROOT}/md5_microdados_ed_basica_2024.txt", listing.encode("latin-1"))
+    return buffer.getvalue()
+
+
 def _csv(columns: list[str], rows: list[list[object]]) -> bytes:
     lines = [";".join(columns)] + [";".join(str(v) for v in row) for row in rows]
     return ("\n".join(lines) + "\n").encode("latin-1")
@@ -236,5 +296,6 @@ def _csv(columns: list[str], rows: list[list[object]]) -> bytes:
 
 if __name__ == "__main__":
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_bytes(build())
-    print(f"wrote {OUT} ({OUT.stat().st_size:,} bytes)")
+    for path, content in ((OUT, build()), (CENSO_OUT, build_censo())):
+        path.write_bytes(content)
+        print(f"wrote {path} ({path.stat().st_size:,} bytes)")

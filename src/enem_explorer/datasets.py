@@ -11,6 +11,8 @@ class Dataset:
     members: dict[str, str]
     encoding: str = "latin-1"
     delimiter: str = ";"
+    # Optional checksum listing inside the zip ("<md5> *<file name>" per line), verified while staging.
+    md5_listing: str | None = None
 
 
 ENEM_2024 = Dataset(
@@ -23,4 +25,12 @@ ENEM_2024 = Dataset(
     },
 )
 
-DATASETS = {d.name: d for d in (ENEM_2024,)}
+# School census: only used for school names and details (the ENEM results only carry a school code).
+CENSO_2024 = Dataset(
+    name="censo_escolar_2024",
+    url="https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_2024.zip",
+    members={"schools": "microdados_censo_escolar_2024_defeso/dados/microdados_ed_basica_2024.csv"},
+    md5_listing="microdados_censo_escolar_2024_defeso/dados/md5_microdados_ed_basica_2024.txt",
+)
+
+DATASETS = {d.name: d for d in (ENEM_2024, CENSO_2024)}
