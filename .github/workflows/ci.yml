@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Lint
+        run: ruff check . && ruff format --check .
+      - name: Type check
+        run: mypy
+      - name: Unit tests
+        run: pytest -q
+      - name: Whole pipeline on the synthetic sample (stage → dbt build + tests → export → explorer)
+        run: scripts/pipeline.sh --fixture
+      - name: Explorer files exist
+        run: test -s site/index.html && test -s site/data/overview.json && ls site/data/schools | head -3

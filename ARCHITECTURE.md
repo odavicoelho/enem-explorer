@@ -1,6 +1,6 @@
 # P1 · ENEM Explorer: architecture proposal
 
-> Status: **approved 2026-10-21.** In progress.
+> Status: **approved 2026-10-21. Built (milestones 1–5).**
 
 ## 1. What it is
 A data engineering pipeline that turns INEP's raw ENEM microdata (millions of rows, messy CSVs) into clean, tested and ready-to-use tables, plus a **public explorer**: how every school, city and state performed, and **which skills students miss the most**.

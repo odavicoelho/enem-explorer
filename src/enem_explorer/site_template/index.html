@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ENEM Explorer · resultados do ENEM 2024 por escola, cidade e estado</title>
+  <meta name="description" content="Como cada escola, cidade e estado foi no ENEM 2024, e quais habilidades os alunos mais erram. Dados oficiais do INEP.">
+  <meta name="theme-color" content="#0a0a0f">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <a href="#/" class="brand"><span class="logo">EX</span> ENEM Explorer</a>
+    <div class="search" role="search">
+      <input id="search" type="search" placeholder="Buscar escola ou cidade…" autocomplete="off" aria-label="Buscar escola ou cidade">
+      <ul id="results" class="results" hidden></ul>
+    </div>
+  </header>
+  <main id="app" aria-live="polite"><p class="muted">Carregando…</p></main>
+  <footer>
+    Dados: microdados do ENEM 2024 e Censo Escolar 2024 (INEP). Só publicamos médias de grupos com 10 ou mais alunos.
+    · <a href="https://github.com/odavicoelho/enem-explorer">código e dados abertos</a>
+    · feito por <a href="https://davicoelho-comercial.vercel.app/engenharia/">Davi Coelho</a>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -6,6 +6,7 @@ import typer
 
 from enem_explorer import export as export_module
 from enem_explorer import ingest
+from enem_explorer import site as site_module
 from enem_explorer import stage as stage_module
 from enem_explorer.datasets import DATASETS, Dataset
 
@@ -49,3 +50,12 @@ def export_command(data: DataDir = Path("data")) -> None:
     counts = export_module.export(data / "enem.duckdb", data / "export", manifest)
     for table, rows in counts.items():
         typer.echo(f"  {table:<14} {rows:>12,} rows")
+
+
+@app.command("site")
+def site_command(
+    data: DataDir = Path("data"), out: Annotated[Path, typer.Option("--out")] = Path("site")
+) -> None:
+    """Build the static explorer from the marts (run after `dbt build`)."""
+    counts = site_module.build(data / "enem.duckdb", out)
+    typer.echo(f"explorer written to {out}/: {counts['schools']:,} schools, {counts['states']} states")

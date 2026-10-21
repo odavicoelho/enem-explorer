@@ -1,0 +1,51 @@
+name: Publish
+
+# Run by hand when INEP releases or updates data: the real pipeline, the open dataset as a release, and the explorer.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write   # create the dataset release
+  pages: write
+  id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+
+      - name: Run the pipeline on the real INEP data
+        run: scripts/pipeline.sh
+
+      - name: Publish the open dataset as a GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=dataset-enem-2024
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" data/export/* --clobber
+          else
+            gh release create "$tag" data/export/* --title "ENEM 2024 open dataset" \
+              --notes-file data/export/DATA_DICTIONARY.md
+          fi
+
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v5
